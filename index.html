@@ -5273,12 +5273,12 @@ Bitcoin.ECKey = (function () {
 	*/
 	ECKey.decodeWalletImportFormat = function (privStr) {
 		var bytes = Bitcoin.Base58.decode(privStr);
-		var hash = bytes.slice(0, 33);
+		var hash = bytes.slice(0, bytes.length - 4);
 		var checksum = Crypto.SHA256(Crypto.SHA256(hash, { asBytes: true }), { asBytes: true });
-		if (checksum[0] != bytes[33] ||
-					checksum[1] != bytes[34] ||
-					checksum[2] != bytes[35] ||
-					checksum[3] != bytes[36]) {
+		if (checksum[0] != bytes[bytes.length - 4] ||
+					checksum[1] != bytes[bytes.length - 3] ||
+					checksum[2] != bytes[bytes.length - 2] ||
+					checksum[3] != bytes[bytes.length - 1]) {
 			throw "Checksum validation failed!";
 		}
 		var version = hash.shift();
@@ -5294,12 +5294,12 @@ Bitcoin.ECKey = (function () {
 	*/
 	ECKey.decodeCompressedWalletImportFormat = function (privStr) {
 		var bytes = Bitcoin.Base58.decode(privStr);
-		var hash = bytes.slice(0, 34);
+		var hash = bytes.slice(0, bytes.length - 4);
 		var checksum = Crypto.SHA256(Crypto.SHA256(hash, { asBytes: true }), { asBytes: true });
-		if (checksum[0] != bytes[34] ||
-					checksum[1] != bytes[35] ||
-					checksum[2] != bytes[36] ||
-					checksum[3] != bytes[37]) {
+		if (checksum[0] != bytes[bytes.length - 4] ||
+					checksum[1] != bytes[bytes.length - 3] ||
+					checksum[2] != bytes[bytes.length - 2] ||
+					checksum[3] != bytes[bytes.length - 1]) {
 			throw "Checksum validation failed!";
 		}
 		var version = hash.shift();
@@ -5307,7 +5307,10 @@ Bitcoin.ECKey = (function () {
 		if (version != janin.currency.privateKeyPrefix()) {
 			throw "Version " + version + " not supported!";
 		}
-		hash.pop();
+		if (janin.selectedCurrency.CWIF_Start !== ""){
+			hash.pop();
+		}
+		
 		return hash;
 	};
 
